@@ -605,7 +605,7 @@ function create() {
     Phaser.Canvas.setUserSelect(game.canvas, 'none');
     Phaser.Canvas.setTouchAction(game.canvas, 'none');
 
-    game.stage.backgroundColor = '#0055bb';
+    game.stage.backgroundColor = '#505050';
 
     createUI();
     createDrawingArea();
