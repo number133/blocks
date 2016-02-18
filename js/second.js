@@ -1,14 +1,19 @@
 // Game
-var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { create: create, update: update });
+var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, 
+	update: update, render: render });
 // Colors
 var red = "#f00", black = "#fff", blue = "#00f", green = "#0f0", white = "#000";
 var colors = [red, blue, green, white];
 // Vars
 var board, block;
+function preload() {
+    game.load.audio('loser', 'sound/loser.mp3');
+}
 
 // crate function
 function create() {
 	game.stage.backgroundColor = '#505050';
+	
     board = new Custom.Board(game, 100, 40, 5, 10);	
     // block = factory.pushBlock("Test");
     for(var k = 0; k < 40; k ++){
@@ -22,4 +27,8 @@ function create() {
 // update function
 function update(){
 	
+}
+
+function render() {
+
 }

@@ -80,6 +80,12 @@ Custom.Board.prototype.getBlock = function (text, color, indexX, indexY) {
     textblock.inputEnabled = true;
     textblock.events.onInputDown.add(function(block){
         this.explodeFrom(block);
+        if(this.isGameOver()){
+            var style = { font: "40px Courier", fill: "#fff", tabs: 80 };
+            this.game.add.text(0, 0, "Game over, loser!", style);
+            var music = game.add.audio('loser');
+            music.play();
+        }
     }, this);
     return textblock;
 }
@@ -229,6 +235,19 @@ Custom.Board.prototype.explode = function () {
     if(toDelete.length > 0){
         this.pullDown();
     }
+}
+
+Custom.Board.prototype.isGameOver = function () {
+    var toDelete = [];
+    for(var y = 0; y < this.maxY; y++) {
+        for (var x = 0; x < this.maxX; x++) {
+            if(this.blocks[x][y] != null){
+                this.collectBlocks(this.blocks[x][y], toDelete);
+            }
+        }
+    }
+    toDelete = toDelete.unique();
+    return toDelete.length === 0;
 }
 
 Custom.Board.prototype.explodeFrom = function (block) {
