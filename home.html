@@ -2,14 +2,16 @@
 <html>
 <head>
 	<meta charset="utf-8" />
-	<title>
-		
-	</title>
-	<script type="text/javascript" src="js/phaser.js"></script>
-	<script type="text/javascript" src="js/custom.js"></script>
+	<title>		
+	</title>	
+	<script type="text/javascript" src="/bower_components/jquery/dist/jquery.js"></script>
+	<script> 
+	    $(function(){
+	      $("#header").load("/pages/header.html"); 
+	    });
+    </script> 
 </head>
 <body>
-
-	<script type="text/javascript" src="js/second.js"></script>
+	<div id="header"></div>
 </body>
 </html>
