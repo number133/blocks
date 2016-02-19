@@ -1,11 +1,11 @@
 // Game
-var game = new Phaser.Game(650, 450, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, 
+var game = new Phaser.Game(900, 450, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, 
 	update: update, render: render });
 // Colors
 var red = "#f00", blue = "#00f", green = "#0f0", white = "#fff", yellow = "#ff0";
 var colors = [red, blue, green, white, yellow, "#ffa500", "#f6546a"];
 // Vars
-
+var board;
 function preload() {
     // game.load.audio('loser', 'sound/loser.mp3');
 }
@@ -71,21 +71,34 @@ function guid() {
 function create() {
 	game.stage.backgroundColor = '#505050';
 	
-    board = new Custom.Board(game, 120, 40, 5, 10);	
-    // block = factory.pushBlock("Test");
-    // for(var k = 0; k < 40; k ++){
-    // 	board.pushBlock("Test", colors[board.getRandom(4)-1]);
-    // }
-	for(var i = 0; i < words.length - 1; i++){
-		var id = guid();
-		board.pushBlock(words[i].w1, green, {id: id});
-    	board.pushBlock(words[i].w2, blue, {id: id});
+    board = new Custom.Board(game, 10, 10, 120, 40, 5, 5);
+    game.time.events.loop(Phaser.Timer.SECOND, feedBlocks, this);
+
+    var controls = new Custom.Controls(game, 500, 10, 120, 40);
+    controls.addBlock(words[0].w1, green, null, 0);
+    controls.addBlock(words[0].w1, green, null, 1);
+    controls.addBlock(words[0].w1, green, null, 2);
+}
+
+var needFeed = true;
+var block;
+var feedColumn = 0;
+function feedBlocks() {
+	if(needFeed){		
+		word = words.shift();
+		if(word){
+	    	block = board.addBlock(word.w1, colors[board.getRandom(4)-1], null, feedColumn, 0);
+	    	needFeed = false;
+	    	feedColumn++;
+	    	if(feedColumn >= board.maxX) feedColumn = 0;
+    	}
+	} else {
+		if(board.canMoveDown(block)){
+			board.moveDown(block);
+		} else {
+			needFeed = true;
+		}
 	}
-	// board.explode();
-	board.squeeze();
-	board.shuffleBlocks();
-    // console.log(factory.canMoveRight(pushBlock4));
-    //game.add.existing(mario);
 }
 
 // update function

@@ -28,10 +28,10 @@ Array.prototype.shuffle = function() {
 var Custom = Custom || {};
 
 /* TextBlock */
-Custom.TextBlock = function (game, indexX, indexY, width, height, text, color) {
+Custom.TextBlock = function (game, x, y, indexX, indexY, width, height, text, color) {
     'use strict';
     var style = { font: "14px Arial", fill: "#000", backgroundColor: color, align: "center"};
-    Phaser.Text.call(this, game, width * indexX, height * indexY, text, style);
+    Phaser.Text.call(this, game, x, y, text, style);
     this.width = width;
     this.height = height;
     this.indexX = indexX;
@@ -41,8 +41,10 @@ Custom.TextBlock.prototype = Object.create(Phaser.Text.prototype);
 Custom.TextBlock.constructor = Custom.TextBlock;
 
 /* Board */
-Custom.Board = function (game, blockWidth, blockHeight, maxX, maxY) {
+Custom.Board = function (game, x, y, blockWidth, blockHeight, maxX, maxY) {
     'use strict';    
+    this.baseX = x;
+    this.baseY = y;
     this.blocks = [];
     this.selectedBlock = null;
     for (var x = 0; x < maxX; x++)
@@ -62,6 +64,21 @@ Custom.Board = function (game, blockWidth, blockHeight, maxX, maxY) {
     this.blockHeight = blockHeight;
     this.maxY = maxY;
     this.maxX = maxX;
+
+    // draw grid begin
+    game.create.grid('drawingGrid', this.blockWidth * this.maxX, this.blockHeight * this.maxY, 
+        this.blockWidth, this.blockHeight, 'rgba(0,191,243,0.8)');
+
+    var canvas = game.make.bitmapData(this.blockWidth * this.maxX, this.blockHeight * this.maxY);
+    var canvasBG = game.make.bitmapData(canvas.width + 2, canvas.height + 2);
+        
+    canvasBG.rect(0, 0, canvasBG.width, canvasBG.height, '#fff');
+    canvasBG.rect(1, 1, canvasBG.width - 2, canvasBG.height - 2, '#3f5c67');
+
+    canvasBG.addToWorld(this.baseX, this.baseY);
+    var canvasSprite = canvas.addToWorld(this.baseX + 1, this.baseY + 1);
+    var canvasGrid = game.add.sprite(this.baseX + 1, this.baseY + 1, 'drawingGrid');
+    // draw grid end
 };
 
 // util
@@ -94,6 +111,8 @@ Custom.Board.prototype.isSelected = function (block) {
 Custom.Board.prototype.getBlock = function (text, color, data, indexX, indexY) {	
     var textblock = new Custom.TextBlock(
     	this.game, 
+        this.baseX + this.blockWidth * indexX,
+        this.baseY + this.blockHeight * indexY,
     	indexX, 
     	indexY,
     	this.blockWidth, 
@@ -134,8 +153,8 @@ Custom.Board.prototype.pushExistingBlock = function (block) {
     for (var y = 0; y < this.maxY; y++) {
         for (var x = 0; x < this.maxX; x++) {
             if(this.blocks[x][y] === null){
-                block.x = x * this.blockWidth;
-                block.y = y * this.blockHeight;    
+                block.x = this.baseX + x * this.blockWidth;
+                block.y = this.baseY + y * this.blockHeight;    
                 block.indexX = x;
                 block.indexY = y;
                 this.blocks[x][y] = block;
@@ -399,4 +418,45 @@ Custom.Board.prototype.destroyBlocks = function (toDelete) {
         this.blocks[toDelete[i].indexX][toDelete[i].indexY] = null;
         toDelete[i].destroy();
     }
+}
+
+// Controls
+Custom.Controls = function (game, x, y, blockWidth, blockHeight) {
+    this.baseX = x;
+    this.baseY = y;
+    this.game = game;
+    this.blocks = [];
+    this.blockWidth = blockWidth;
+    this.blockHeight = blockHeight;
+
+    var canvas = game.make.bitmapData(this.blockWidth + 20, this.blockHeight * 3 + 40);
+    var canvasBG = game.make.bitmapData(canvas.width + 2, canvas.height + 2);
+        
+    canvasBG.rect(0, 0, canvasBG.width, canvasBG.height, '#fff');
+    canvasBG.rect(1, 1, canvasBG.width - 2, canvasBG.height - 2, '#3f5c67');
+
+    canvasBG.addToWorld(this.baseX, this.baseY);
+    var canvasSprite = canvas.addToWorld(this.baseX + 1, this.baseY + 1);
+}
+
+Custom.Controls.prototype.addBlock = function (text, color, data, index) {    
+    var textblock = new Custom.TextBlock(
+        this.game, 
+        this.baseX + this.blockWidth + 10,
+        this.baseY + this.blockHeight * index + 10 * index,
+        null, 
+        index,
+        this.blockWidth, 
+        this.blockHeight, 
+        text, 
+        color
+    );
+    this.blocks[index] = textblock;
+    textblock.data = data;
+    textblock.inputEnabled = true;
+    textblock.events.onInputDown.add(function(block){        
+        
+    }, this);
+    this.game.add.existing(textblock);
+    return textblock;
 }
