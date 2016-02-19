@@ -15,6 +15,16 @@ Array.prototype.unique = function() {
     return arr; 
 }
 
+Array.prototype.shuffle = function() {
+  var j, x, i;
+  for (i = this.length; i; i -= 1) {
+    j = Math.floor(Math.random() * i);
+    x = this[i-1];
+    this[i-1] = this[j];
+    this[j] = x;
+  }
+}
+
 var Custom = Custom || {};
 
 /* TextBlock */
@@ -120,6 +130,22 @@ Custom.Board.prototype.addBlock = function (text, color, data, indexX, indexY) {
 	return block;
 }
 
+Custom.Board.prototype.pushExistingBlock = function (block) {
+    for (var y = 0; y < this.maxY; y++) {
+        for (var x = 0; x < this.maxX; x++) {
+            if(this.blocks[x][y] === null){
+                block.x = x * this.blockWidth;
+                block.y = y * this.blockHeight;    
+                block.indexX = x;
+                block.indexY = y;
+                this.blocks[x][y] = block;
+                return block;            
+            }
+        }
+    }
+    return block;
+}
+
 Custom.Board.prototype.pushBlock = function (text, color, data) {
     for (var y = 0; y < this.maxY; y++) {
         for (var x = 0; x < this.maxX; x++) {
@@ -127,6 +153,38 @@ Custom.Board.prototype.pushBlock = function (text, color, data) {
                 return this.addBlock(text, color, data, x, y);            
             }
         }
+    }
+}
+
+Custom.Board.prototype.getBlocks = function () {
+    var list = [];
+    for (var y = 0; y < this.maxY; y++) {
+        for (var x = 0; x < this.maxX; x++) {
+            if(this.blocks[x][y] != null){
+                list.push(this.blocks[x][y]);            
+            }
+        }
+    }
+    return list;
+}
+
+Custom.Board.prototype.clearBlocks = function () {
+    for (var y = 0; y < this.maxY; y++) {
+        for (var x = 0; x < this.maxX; x++) {
+            this.blocks[x][y] = null;
+        }
+    }
+}
+
+Custom.Board.prototype.shuffleBlocks = function () {
+    while(this.hasReadyGroups()) {
+        var blocks = this.getBlocks();
+        blocks.shuffle();
+        this.clearBlocks();
+        for(var i=0; i<blocks.length; i++){
+            this.pushExistingBlock(blocks[i]);
+        }
+        this.squeeze();
     }
 }
 
@@ -275,10 +333,21 @@ Custom.Board.prototype.explode = function () {
         }
     }
     toDelete = toDelete.unique();
-    this.removeAll(toDelete);
+    this.destroyBlocks(toDelete);
     if(toDelete.length > 0){
         this.squeeze();
         this.explode();
+    }
+}
+
+Custom.Board.prototype.explodeFrom = function (block) {
+    var toDelete = [];
+    this.collectBlocks(block, toDelete);
+    
+    toDelete = toDelete.unique();
+    this.destroyBlocks(toDelete);
+    if(toDelete.length > 0){
+        this.squeeze();
     }
 }
 
@@ -292,7 +361,7 @@ Custom.Board.prototype.hasReadyGroups = function () {
         }
     }
     toDelete = toDelete.unique();
-    return toDelete.length === 0;
+    return toDelete.length > 0;
 }
 
 Custom.Board.prototype.hasSameBlocks = function () {
@@ -311,17 +380,6 @@ Custom.Board.prototype.hasSameBlocks = function () {
     return false;
 }
 
-Custom.Board.prototype.explodeFrom = function (block) {
-    var toDelete = [];
-    this.collectBlocks(block, toDelete);
-    
-    toDelete = toDelete.unique();
-    this.removeAll(toDelete);
-    if(toDelete.length > 0){
-        this.squeeze();
-    }
-}
-
 Custom.Board.prototype.collectBlocks = function (block, toDelete) {
     var neibs = this.getNeibs(block);
     for(var i=0; i < neibs.length; i++){
@@ -336,7 +394,7 @@ Custom.Board.prototype.collectBlocks = function (block, toDelete) {
     }
 }
 
-Custom.Board.prototype.removeAll = function (toDelete) {
+Custom.Board.prototype.destroyBlocks = function (toDelete) {
     for(var i=0; i < toDelete.length; i++){
         this.blocks[toDelete[i].indexX][toDelete[i].indexY] = null;
         toDelete[i].destroy();

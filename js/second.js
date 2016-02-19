@@ -12,48 +12,48 @@ function preload() {
 
 var words = [
 	{
-		en: "boy",
-		kz: "bala"
+		w1: "arduous",
+		w2: "трудный"
 	},
 	{
-		en: "girl",
-		kz: "kyz"
+		w1: "austere",
+		w2: "суровый"
 	},
 	{
-		en: "moon",
-		kz: "ai"
+		w1: "disabuse",
+		w2: "разуверить"
 	},
 	{
-		en: "sun",
-		kz: "kun"
+		w1: "effrontery",
+		w2: "наглость"
 	},
 	{
-		en: "blood",
-		kz: "kan"
+		w1: "ennui",
+		w2: "тоска"
 	},
 	{
-		en: "soul",
-		kz: "zhan"
+		w1: "fulminate",
+		w2: "громить"
 	},
 	{
-		en: "men",
-		kz: "adam"
+		w1: "irascible",
+		w2: "вспыльчивый"
 	},
 	{
-		en: "hand",
-		kz: "kol"
+		w1: "mundane",
+		w2: "обыденный"
 	},
 	{
-		en: "head",
-		kz: "bas"
+		w1: "nebulous",
+		w2: "смутный"
 	},
 	{
-		en: "dog",
-		kz: "it"
+		w1: "perfidy",
+		w2: "коварство"
 	},
 	{
-		en: "cat",
-		kz: "mysyk"
+		w1: "prattle",
+		w2: "болтовня"
 	}
 ];
 
@@ -78,10 +78,12 @@ function create() {
     // }
 	for(var i = 0; i < words.length - 1; i++){
 		var id = guid();
-		board.pushBlock(words[i].en, colors[board.getRandom(colors.length)-1], {id: id});
-    	board.pushBlock(words[i].kz, colors[board.getRandom(colors.length)-1], {id: id});
+		board.pushBlock(words[i].w1, green, {id: id});
+    	board.pushBlock(words[i].w2, blue, {id: id});
 	}
-	board.explode();
+	// board.explode();
+	board.squeeze();
+	board.shuffleBlocks();
     // console.log(factory.canMoveRight(pushBlock4));
     //game.add.existing(mario);
 }
